@@ -1,36 +1,40 @@
 name: Automatisation des tests DevSecOps
+
 on: push
 
 jobs:
   Dependances:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v3
+      - name: Récupéreration du code
+        uses: actions/checkout@v4
 
-      - name: Scan des dépendances avec Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: "./requirements.txt"
-          severity: "HIGH,CRITICAL"
-          exit-code: "1"
-
+      - name: Scan des dépendances avec Trivy 
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -v $HOME/.cache/trivy:/root/.cache/ \
+            aquasec/trivy:latest fs \
+              --security-checks vuln \
+              --severity HIGH,CRITICAL \
+              --exit-code 1 \
+              /workspace
   Dockerfile:
     runs-on: ubuntu-latest
     needs: Dependances
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v3
+      - name: Récupérer le code
+        uses: actions/checkout@v4
 
-      - name: Scan Dockerfile avec Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "config"
-          scan-ref: "./Dockerfile"
-          severity: "HIGH,CRITICAL"
-          exit-code: "1"
-
+      - name: Scan du Dockerfile avec Trivy
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -v $HOME/.cache/trivy:/root/.cache/ \
+            aquasec/trivy:latest config \
+              --severity HIGH,CRITICAL \
+              --exit-code 1 \
+              /workspace
   Deploy:
     runs-on: ubuntu-latest
     needs: Dockerfile
