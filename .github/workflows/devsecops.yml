@@ -6,10 +6,10 @@ jobs:
   Dependances:
     runs-on: ubuntu-latest
     steps:
-      - name: Récupéreration du code
+      - name: Récupérerion du code
         uses: actions/checkout@v4
 
-      - name: Scan des dépendances avec Trivy 
+      - name: Scan des dépendances par Trivy 
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
@@ -19,11 +19,12 @@ jobs:
               --severity HIGH,CRITICAL \
               --exit-code 1 \
               /workspace
+
   Dockerfile:
     runs-on: ubuntu-latest
     needs: Dependances
     steps:
-      - name: Récupérer le code
+      - name: Récupérar=tion du code
         uses: actions/checkout@v4
 
       - name: Scan du Dockerfile avec Trivy
@@ -35,6 +36,7 @@ jobs:
               --severity HIGH,CRITICAL \
               --exit-code 1 \
               /workspace
+
   Deploy:
     runs-on: ubuntu-latest
     needs: Dockerfile
